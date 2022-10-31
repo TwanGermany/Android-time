@@ -4,36 +4,45 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
+import android.media.Rating;
 import android.os.Bundle;
+import android.widget.Button;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
     private RecyclerView rcvLandmark;
     private LandmarkAdapter landmarkAdapter;
-
+    private LandmarkDataService landmarkDataService;
+    private List<Landmark> landmarkList;
+    private Button launchButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        landmarkList = landmarkDataService.getLandmarks();
         rcvLandmark = findViewById(R.id.rcv_landmark);
         landmarkAdapter = new LandmarkAdapter(this);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL,false);
-        rcvLandmark.setLayoutManager(linearLayoutManager);
-        landmarkAdapter.setData(getListLandmark());
+        landmarkAdapter.setData(landmarkList);
         rcvLandmark.setAdapter(landmarkAdapter);
+        rcvLandmark.setLayoutManager(new LinearLayoutManager(this));
+
+
     }
-
-    private List<Landmark> getListLandmark() {
-        List<Landmark> list = new ArrayList<>();
-        list.add(new Landmark(R.drawable.dinhdoclap, "Dinh Độc Lập", "Independence Palace is a famous historical site for foreign and domestic visitors to Ho Chi Minh City.",2));
-        list.add(new Landmark(R.drawable.buudienthanhpho, "Bưu Điện Thành Phố","Saigon Central Post Office is an iconic tourist stop in Ho Chi Minh City.",5));
-        list.add(new Landmark(R.drawable.nhahatthanhpho, "Nhà Hát Thành phố","Saigon Opera House was built in 1898 following the “flamboyant” style of the French 3rd Republic,a National Relic of Vietnam",5));
-        list.add(new Landmark(R.drawable.nhathoducba, "Nhà Thờ Đức Bà","Saigon Notre-Dame Cathedral is a unique architectural works attracting numerous tourists in Ho Chi Minh City. ",4));
-
-        return list;
+    private void launchFavoriteListActivity(){
+        Intent intent = new Intent(MainActivity.this,FavoriteListActivity.class);
+        List<Landmark> favoriteLandmarks = landmarkDataService.getFavoriteLandmark();
+        int[] favoriteLandmarkId = favoriteLandmarks.stream().map(Landmark::getResourceId).mapToInt(Integer::intValue).toArray();
+        if(favoriteLandmarks.size()>0){
+            intent.putExtra("landmark_id", favoriteLandmarkId);
+            startActivity(intent);
+        }
     }
 }
+
+
+
